@@ -1,4 +1,5 @@
 from time import sleep
+import threading
 from datetime import datetime
 from app.reqs import get_avg_price as gap
 from app.settings import primary_symbol as primary, secondary_symbol as secondary
@@ -9,6 +10,9 @@ n = time*60 // freq
 
 
 def data_append(primary, secondary):
+	timer = threading.Timer(freq, data_append, args=(primary, secondary))
+	timer.start()
+
 	p_data = open('app/data/primary.txt', 'a')
 	s_data = open('app/data/secondary.txt', 'a')
 
@@ -28,10 +32,15 @@ def data_clear():
 
 
 def correlation_analysis():
-	p = open('app/data/primary.txt', 'r').read().splitlines()
-	s = open('app/data/secondary.txt', 'r').read().splitlines()
+	timer = threading.Timer(time*60, correlation_analysis)
+	timer.start()
 
-	for i in range(n):
+	p = list(open('app/data/primary.txt', 'r').read().splitlines())
+	s = list(open('app/data/secondary.txt', 'r').read().splitlines())
+
+	data_clear()
+
+	for i in range(len(p)):
 		p[i] = float(p[i].split(' ')[-1])
 		s[i] = float(s[i].split(' ')[-1])
 
@@ -51,7 +60,12 @@ def correlation_analysis():
 		ps_psavg.append((p[i] - p_avg)*(s[i] - s_avg))
 
 	result = sum(ps_psavg) / (sum(p_pavg)*sum(s_savg))**0.5
-	
+
+	if result < 0.5 and result > 0.5:
+		print(f'Correlation coef is GOOD: {result}')
+		if max(p[0], p[-1]) / min(p[0],p[-1]) >= 1.01:
+			print(f'PRICE CHANGE MORE THAN 1%')
+
 	return result
 
 
@@ -73,18 +87,13 @@ def app():
 	print(f'Secondary Symbol: {secondary}')
 	print(f'Start time: {datetime.now().isoformat(sep=" ", timespec="seconds")}\n\n')
 
-	while True:
-		data_clear()
+	data_clear()
 
-		for i in range(n):
-			data_append(primary, secondary)
-			sleep(freq)
+	t1 = threading.Thread(target=data_append, args=(primary, secondary))
+	t1.start()
+	print(f'Thread1 (target=data_append) started...')
 
-		c = correlation_analysis()
-
-		if c > 0.5 or c < -0.5:
-			print(f'correlation analys not good ({c})...')
-		else:
-			print(f'correlation analys is good ({c})!')
-			if is_more_percent:
-				print(f"1% CHANGE! {datetime.now()}")
+	timer = threading.Timer(time*60, correlation_analysis)
+	timer.start()
+	
+	print(f'Thread2 (target=correlation_analysis) started...')
