@@ -2,10 +2,10 @@ from time import sleep
 from datetime import datetime
 from app.reqs import get_avg_price as gap
 from app.settings import primary_symbol as primary, secondary_symbol as secondary
-from app.settings import period as time, cut
+from app.settings import period as time, freq
 import os
 
-n = time*60 // cut
+n = time*60 // freq
 
 
 def data_append(primary, secondary):
@@ -69,7 +69,7 @@ def app():
 	# log = open('app/data/log.txt', 'w')
 	print('\nStarting the process...', end='\n\n')
 	print(f'Period: {time} *minutes*')
-	print(f'Cut: {cut} *seconds*')
+	print(f'Freq: {freq} *seconds*')
 	print(f'Primary Symbol: {primary}')
 	print(f'Secondary Symbol: {secondary}')
 	print(f'Start time: {datetime.now().isoformat(sep=" ", timespec="seconds")}\n\n')
@@ -80,7 +80,7 @@ def app():
 
 		for i in range(n):
 			data_append(primary, secondary)
-			sleep(cut)
+			sleep(freq)
 
 		c = correlation_analysis()
 
@@ -90,4 +90,4 @@ def app():
 		else:
 			print(f'correlation analys is good ({c})!')
 			if is_more_percent:
-				print(f'\nEVRIKA! {datetime.now()}')
+				print(f"1% CHANGE! {datetime.now()}")
