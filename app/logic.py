@@ -66,14 +66,12 @@ def is_more_percent():
 
 
 def app():
-	# log = open('app/data/log.txt', 'w')
 	print('\nStarting the process...', end='\n\n')
 	print(f'Period: {time} *minutes*')
 	print(f'Freq: {freq} *seconds*')
 	print(f'Primary Symbol: {primary}')
 	print(f'Secondary Symbol: {secondary}')
 	print(f'Start time: {datetime.now().isoformat(sep=" ", timespec="seconds")}\n\n')
-	# log.close()
 
 	while True:
 		data_clear()
@@ -84,7 +82,6 @@ def app():
 
 		c = correlation_analysis()
 
-		log = open('app/data/log.txt', 'a')
 		if c > 0.5 or c < -0.5:
 			print(f'correlation analys not good ({c})...')
 		else:
